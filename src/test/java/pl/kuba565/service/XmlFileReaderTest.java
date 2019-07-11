@@ -22,37 +22,22 @@ public class XmlFileReaderTest {
         EndElementHandler endElementHandler = new EndElementHandler();
         XmlFileReader xmlFileReader = new XmlFileReader(inputSource, startElementHandler, endElementHandler, charactersHandler);
 
-        final String expected = "The text can start outside a section...." +
-                System.lineSeparator() +
-                "=Build 1234=" +
-                System.lineSeparator() +
-                "==Api component==" +
-                System.lineSeparator() +
-                "'''Date: ''01.04.2015'''''" +
-                System.lineSeparator() +
-                "===Main===" +
-                System.lineSeparator() +
-                "====astraia.jar====" +
-                System.lineSeparator() +
-                "''Built in '''512ms'''''" +
-                System.lineSeparator() +
-                "===Test===" +
-                System.lineSeparator() +
-                "Test performed on the different databases" +
-                System.lineSeparator() +
-                "====Sybase====" +
-                System.lineSeparator() +
-                "=====Preparing DB=====" +
-                System.lineSeparator() +
-                "Done in ''1556ms''" +
-                System.lineSeparator() +
-                "=====JUnits=====" +
-                System.lineSeparator() +
-                "======com.astraia.api.data======" +
-                System.lineSeparator() +
-                "'''Passed:''' All passed!" +
-                System.lineSeparator() +
-                "'''Failed:''' None=";
+        final String expected = "The text can start outside a section....\n" +
+                "=Build 1234=\n" +
+                "==Api component==\n" +
+                "'''Date: ''01.04.2015'''''\n" +
+                "===Main===\n" +
+                "====astraia.jar====\n" +
+                "''Built in '''512ms'''''\n" +
+                "===Test===\n" +
+                "Test performed on the different databases\n" +
+                "====Sybase====\n" +
+                "=====Preparing DB=====\n" +
+                "Done in ''1556ms''\n" +
+                "=====JUnits=====\n" +
+                "======com.astraia.api.data======\n" +
+                "'''Passed:''' All passed!\n" +
+                "'''Failed:''' None\n";
 
         //when
         String result = xmlFileReader.read();

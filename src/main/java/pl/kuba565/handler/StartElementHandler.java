@@ -5,19 +5,23 @@ import javax.xml.stream.events.StartElement;
 import java.util.Iterator;
 
 public class StartElementHandler {
-    public String handle(StartElement startElement) {
+
+    public String handle(StartElement startElement, Integer level) {
         StringBuilder stringBuilder = new StringBuilder();
         String elementName = startElement.getName().getLocalPart();
 
         switch (elementName) {
             case "section": {
-                stringBuilder.append("=");
+                stringBuilder.append(System.lineSeparator());
                 Iterator<Attribute> attributes = startElement.getAttributes();
                 if (attributes.hasNext()) {
+                    String sectionHeaderSign = "=".repeat(level);
                     Attribute attribute = attributes.next();
                     String heading = attribute.getValue();
-                    stringBuilder.append(heading)
-                            .append("=")
+                    stringBuilder
+                            .append(sectionHeaderSign)
+                            .append(heading)
+                            .append(sectionHeaderSign)
                             .append(System.lineSeparator());
                 }
                 break;
@@ -28,10 +32,9 @@ public class StartElementHandler {
             }
             case "italic": {
                 stringBuilder.append("''");
+                break;
             }
-
         }
-
         return stringBuilder.toString();
     }
 }

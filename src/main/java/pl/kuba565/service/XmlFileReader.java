@@ -1,5 +1,7 @@
 package pl.kuba565.service;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
@@ -30,13 +32,19 @@ class XmlFileReader {
     String read() {
         StringBuilder stringBuilder = new StringBuilder();
         try {
+            Integer level = 1;
             XMLInputFactory factory = XMLInputFactory.newInstance();
             XMLEventReader eventReader = factory.createXMLEventReader(new FileReader(inputSource));
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
                 switch (event.getEventType()) {
                     case XMLStreamConstants.START_ELEMENT: {
-                        stringBuilder.append(startElementHandler.handle(event.asStartElement()));
+                        if (event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section")) {
+                            stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
+                            level++;
+                        } else {
+                            stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
+                        }
                         break;
                     }
                     case XMLStreamConstants.CHARACTERS: {
@@ -44,7 +52,12 @@ class XmlFileReader {
                         break;
                     }
                     case XMLStreamConstants.END_ELEMENT: {
-                        stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+                        if (event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section")) {
+                            stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+                            level--;
+                        } else {
+                            stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+                        }
                         break;
                     }
                 }
