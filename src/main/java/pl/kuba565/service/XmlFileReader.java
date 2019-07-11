@@ -1,32 +1,57 @@
 package pl.kuba565.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import pl.kuba565.handler.CharactersHandler;
+import pl.kuba565.handler.EndElementHandler;
+import pl.kuba565.handler.StartElementHandler;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
-public class XmlFileReader implements FileReader {
+class XmlFileReader {
     private final String inputSource;
+    private StartElementHandler startElementHandler;
+    private EndElementHandler endElementHandler;
+    private CharactersHandler charactersHandler;
 
-    public XmlFileReader(@Value("${inputSource}") String inputSource) {
+    XmlFileReader(@Value("${inputSource}") String inputSource, StartElementHandler startElementHandler,
+                  EndElementHandler endElementHandler, CharactersHandler charactersHandler) {
         this.inputSource = inputSource;
+        this.startElementHandler = startElementHandler;
+        this.charactersHandler = charactersHandler;
+        this.endElementHandler = endElementHandler;
     }
 
-    @Override
-    public Document read() throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(inputSource);
-    }
-
-    @Override
-    public Boolean fileAvailable() {
-        return Files.isDirectory(Path.of(inputSource));
+    String read() {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader eventReader = factory.createXMLEventReader(new FileReader(inputSource));
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
+                switch (event.getEventType()) {
+                    case XMLStreamConstants.START_ELEMENT: {
+                        stringBuilder.append(startElementHandler.handle(event.asStartElement()));
+                        break;
+                    }
+                    case XMLStreamConstants.CHARACTERS: {
+                        stringBuilder.append(charactersHandler.handle(event.asCharacters()));
+                        break;
+                    }
+                    case XMLStreamConstants.END_ELEMENT: {
+                        stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+                        break;
+                    }
+                }
+            }
+        } catch (XMLStreamException | FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 }
