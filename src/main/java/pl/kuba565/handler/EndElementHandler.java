@@ -8,10 +8,6 @@ public class EndElementHandler {
         String elementName = endElement.getName().getLocalPart();
 
         switch (elementName) {
-            case "report": {
-                stringBuilder.append(System.lineSeparator());
-                break;
-            }
             case "bold": {
                 stringBuilder.append("'''");
                 break;

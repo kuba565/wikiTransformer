@@ -11,8 +11,11 @@ public class StartElementHandler {
         String elementName = startElement.getName().getLocalPart();
 
         switch (elementName) {
+            case "report": {
+
+                break;
+            }
             case "section": {
-                stringBuilder.append(System.lineSeparator());
                 Iterator<Attribute> attributes = startElement.getAttributes();
                 if (attributes.hasNext()) {
                     String sectionHeaderSign = "=".repeat(level);
@@ -21,8 +24,7 @@ public class StartElementHandler {
                     stringBuilder
                             .append(sectionHeaderSign)
                             .append(heading)
-                            .append(sectionHeaderSign)
-                            .append(System.lineSeparator());
+                            .append(sectionHeaderSign);
                 }
                 break;
             }

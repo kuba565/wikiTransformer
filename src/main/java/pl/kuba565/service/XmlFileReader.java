@@ -1,8 +1,7 @@
 package pl.kuba565.service;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import pl.kuba565.Util.TextTrimmer;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
@@ -39,7 +38,8 @@ class XmlFileReader {
                 XMLEvent event = eventReader.nextEvent();
                 switch (event.getEventType()) {
                     case XMLStreamConstants.START_ELEMENT: {
-                        if (event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section")) {
+                        boolean section = event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section");
+                        if (section) {
                             stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
                             level++;
                         } else {
@@ -52,7 +52,8 @@ class XmlFileReader {
                         break;
                     }
                     case XMLStreamConstants.END_ELEMENT: {
-                        if (event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section")) {
+                        boolean section = event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section");
+                        if (section) {
                             stringBuilder.append(endElementHandler.handle(event.asEndElement()));
                             level--;
                         } else {
@@ -65,6 +66,6 @@ class XmlFileReader {
         } catch (XMLStreamException | FileNotFoundException e) {
             e.printStackTrace();
         }
-        return stringBuilder.toString();
+        return TextTrimmer.trim(stringBuilder);
     }
 }
