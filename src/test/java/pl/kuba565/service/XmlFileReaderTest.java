@@ -20,7 +20,7 @@ public class XmlFileReaderTest {
         StartElementHandler startElementHandler = new StartElementHandler();
         CharactersHandler charactersHandler = new CharactersHandler();
         EndElementHandler endElementHandler = new EndElementHandler();
-        XmlFileReader xmlFileReader = new XmlFileReader(inputSource, startElementHandler, endElementHandler, charactersHandler);
+        XmlFileReader xmlFileReader = new XmlFileReader( startElementHandler, endElementHandler, charactersHandler);
 
         final String expected = "The text can start outside a section....\n" +
                 "=Build 1234=\n" +
@@ -40,7 +40,7 @@ public class XmlFileReaderTest {
                 "'''Failed:''' None\n";
 
         //when
-        String result = xmlFileReader.read();
+        String result = xmlFileReader.read(inputSource);
 
         //then
         Assertions.assertEquals(expected, result);
@@ -52,7 +52,7 @@ public class XmlFileReaderTest {
         StartElementHandler startElementHandler = new StartElementHandler();
         CharactersHandler charactersHandler = new CharactersHandler();
         EndElementHandler endElementHandler = new EndElementHandler();
-        XmlFileReader xmlFileReader = new XmlFileReader(inputSource, startElementHandler, endElementHandler, charactersHandler);
+        XmlFileReader xmlFileReader = new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
 
         final String expected = "The text can start outside a section....\n" +
                 "=Build 1234=\n" +
@@ -74,7 +74,7 @@ public class XmlFileReaderTest {
                 "'''TestInterview'''\n";
 
         //when
-        String result = xmlFileReader.read();
+        String result = xmlFileReader.read(inputSource);
 
         //then
         Assertions.assertEquals(expected, result);

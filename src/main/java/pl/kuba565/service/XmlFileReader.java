@@ -1,6 +1,5 @@
 package pl.kuba565.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import pl.kuba565.Util.TextTrimmer;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
@@ -15,20 +14,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 class XmlFileReader {
-    private final String inputSource;
     private StartElementHandler startElementHandler;
     private EndElementHandler endElementHandler;
     private CharactersHandler charactersHandler;
 
-    XmlFileReader(@Value("${inputSource}") String inputSource, StartElementHandler startElementHandler,
+    XmlFileReader(StartElementHandler startElementHandler,
                   EndElementHandler endElementHandler, CharactersHandler charactersHandler) {
-        this.inputSource = inputSource;
         this.startElementHandler = startElementHandler;
         this.charactersHandler = charactersHandler;
         this.endElementHandler = endElementHandler;
     }
 
-    String read() {
+    String read(String inputSource) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
             Integer level = 1;

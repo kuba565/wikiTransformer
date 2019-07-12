@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class WikiFileSaver {
+    @Value("${outputSource}")
     private final String outputSource;
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlLooker.class);
 
@@ -17,8 +18,8 @@ public class WikiFileSaver {
     }
 
     public void saveWikiFile(WikiFile wikiFile) throws IOException {
-        try (PrintWriter out = new PrintWriter(outputSource + "/filename.txt")) {
-            out.println(wikiFile.getValue());
+        try (PrintWriter printWriter = new PrintWriter(outputSource + "/" + wikiFile.getName())) {
+            printWriter.print(wikiFile.getValue());
         }
     }
 }
