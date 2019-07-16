@@ -1,5 +1,6 @@
 package pl.kuba565.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import pl.kuba565.Util.TextTrimmer;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;

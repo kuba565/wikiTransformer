@@ -3,14 +3,12 @@ package pl.kuba565.service;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
 public class XmlFileReaderTest {
 
     @Test
@@ -20,7 +18,7 @@ public class XmlFileReaderTest {
         StartElementHandler startElementHandler = new StartElementHandler();
         CharactersHandler charactersHandler = new CharactersHandler();
         EndElementHandler endElementHandler = new EndElementHandler();
-        XmlFileReader xmlFileReader = new XmlFileReader( startElementHandler, endElementHandler, charactersHandler);
+        XmlFileReader xmlFileReader = new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
 
         final String expected = "The text can start outside a section....\n" +
                 "=Build 1234=\n" +
@@ -45,6 +43,7 @@ public class XmlFileReaderTest {
         //then
         Assertions.assertEquals(expected, result);
     }
+
     @Test
     public void shouldReadFile2() {
         //given

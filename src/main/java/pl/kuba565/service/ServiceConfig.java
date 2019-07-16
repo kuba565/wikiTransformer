@@ -4,37 +4,37 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import pl.kuba565.exception.DirectoryNotFoundException;
+import pl.kuba565.exception.NullDirectoryException;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
-import pl.kuba565.repository.WikiFileRepository;
-import pl.kuba565.repository.XmlFileRepository;
 
-import java.util.Timer;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Configuration
 @ComponentScan
 public class ServiceConfig {
-    @Value("${inputSource}")
-    public String inputSource;
-
-    @Value("${outputSource}")
-    public String outputSource;
-
     @Bean
-    public XmlLooker XmlLooker(XmlFileRepository xmlFileRepository, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
-        return new XmlLooker(inputSource, xmlFileRepository, xmlFileReader, wikiFileSaver);
+    public XmlLooker XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) throws IOException {
+
+        if (inputSource == null || inputSource.equals("")) {
+            throw new NullDirectoryException();
+        }
+
+        if (!Files.exists(Paths.get(inputSource))) {
+            throw new DirectoryNotFoundException(inputSource);
+        }
+
+        return new XmlLooker(inputSource, xmlFileReader, wikiFileSaver);
     }
 
     @Bean
     public XmlFileReader XmlFileReader(StartElementHandler startElementHandler, EndElementHandler endElementHandler,
                                        CharactersHandler charactersHandler) {
         return new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
-    }
-
-    @Bean
-    public XmlFileRepository XmlFileRepository() {
-        return new XmlFileRepository();
     }
 
     @Bean
@@ -53,20 +53,15 @@ public class ServiceConfig {
     }
 
     @Bean
-    public WikiFileSaver WikiFileSaver() {
+    public WikiFileSaver WikiFileSaver(@Value("${outputSource}") String outputSource) {
+        if (outputSource == null || outputSource.equals("")) {
+            throw new NullDirectoryException();
+        }
+
+        if (!Files.exists(Paths.get(outputSource))) {
+            throw new DirectoryNotFoundException(outputSource);
+        }
         return new WikiFileSaver(outputSource);
-    }
-
-    @Bean
-    public WikiFileRepository WikiFileRepository() {
-        return new WikiFileRepository();
-    }
-
-    @Bean
-    public Timer Timer(XmlFileRepository xmlFileRepository, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
-        Timer timer = new Timer();
-        timer.schedule(new XmlLooker(inputSource, xmlFileRepository, xmlFileReader, wikiFileSaver), 0, 5000);
-        return timer;
     }
 
 }

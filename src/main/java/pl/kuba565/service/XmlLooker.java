@@ -1,64 +1,56 @@
 package pl.kuba565.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import pl.kuba565.model.WikiFile;
-import pl.kuba565.model.XmlFile;
-import pl.kuba565.repository.XmlFileRepository;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.TimerTask;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class XmlLooker extends TimerTask {
-    private String inputSource;
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlLooker.class);
-    private XmlFileRepository xmlFileRepository;
-    private WikiFileSaver wikiFileSaver;
-    private XmlFileReader xmlFileReader;
+public class XmlLooker {
+    @Value("${inputSource}")
+    private final String inputSource;
+    private final XmlFileReader xmlFileReader;
+    private final WikiFileSaver wikiFileSaver;
 
-    public XmlLooker(@Value("${inputSource}") String inputSource, XmlFileRepository xmlFileRepository, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
-        this.xmlFileReader = xmlFileReader;
-        this.xmlFileRepository = xmlFileRepository;
-        this.wikiFileSaver = wikiFileSaver;
+    public XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) throws IOException {
         this.inputSource = inputSource;
+        this.xmlFileReader = xmlFileReader;
+        this.wikiFileSaver = wikiFileSaver;
+        this.checkFileForNewXml();
     }
 
-    private void checkFileForNewXml() {
-        System.out.println("inputSource: " + inputSource);
-        File file = new File(inputSource);
-
-        if (file.isDirectory()) {
-            if (Objects.requireNonNull(file.list()).length > 0) {
-                LOGGER.info("Directory is not empty!");
-                String[] fileList = file.list();
-                List.of(fileList).forEach(fileName -> {
-                    if (!xmlFileRepository.contains(fileName)) {
-                        WikiFile wikiFile = new WikiFile();
-                        wikiFile.setValue(xmlFileReader.read(inputSource + fileName));
-                        wikiFile.setName(fileName);
-                        try {
-                            wikiFileSaver.saveWikiFile(wikiFile);
-                            xmlFileRepository.add(new XmlFile(fileName));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            } else {
-                LOGGER.info("Directory is empty!");
-            }
-        } else {
-            LOGGER.info("This is not a directory");
+    private void checkFileForNewXml() throws IOException { // TODO: PATHS TO INPUT/ OUTPUT
+        readFiles();
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+        Path path = Paths.get(inputSource);
+        WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        while (true) {
+            watchKey.pollEvents()
+                    .forEach(x -> saveAsWikiFile(inputSource + x.context().toString()));
+            watchKey.reset();
         }
-
     }
 
-    @Override
-    public void run() {
-        checkFileForNewXml();
+    private void saveAsWikiFile(String path) {
+        String fileName = FilenameUtils.removeExtension(new File(path).getName());
+        String content = xmlFileReader.read(path);
+        wikiFileSaver.saveWikiFile(fileName, content);
+    }
+
+    private void readFiles() {
+        try (Stream<Path> walk = Files.walk(Paths.get(inputSource))) {
+
+            List<String> result = walk.map(Path::toString)
+                    .filter(f -> f.endsWith(".xml")).collect(Collectors.toList());
+
+            result.forEach(this::saveAsWikiFile);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

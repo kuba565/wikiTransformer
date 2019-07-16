@@ -11,10 +11,6 @@ public class StartElementHandler {
         String elementName = startElement.getName().getLocalPart();
 
         switch (elementName) {
-            case "report": {
-
-                break;
-            }
             case "section": {
                 Iterator<Attribute> attributes = startElement.getAttributes();
                 if (attributes.hasNext()) {
