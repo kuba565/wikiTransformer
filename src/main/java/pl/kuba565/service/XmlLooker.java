@@ -23,7 +23,7 @@ public class XmlLooker {
         this.checkFileForNewXml();
     }
 
-    private void checkFileForNewXml() throws IOException { // TODO: PATHS TO INPUT/ OUTPUT
+    private void checkFileForNewXml() throws IOException {
         readFiles();
         WatchService watchService = FileSystems.getDefault().newWatchService();
         Path path = Paths.get(inputSource);
@@ -44,8 +44,10 @@ public class XmlLooker {
     private void readFiles() {
         try (Stream<Path> walk = Files.walk(Paths.get(inputSource))) {
 
-            List<String> result = walk.map(Path::toString)
-                    .filter(f -> f.endsWith(".xml")).collect(Collectors.toList());
+            List<String> result = walk
+                    .map(Path::toString)
+                    .filter(f -> f.endsWith(".xml"))
+                    .collect(Collectors.toList());
 
             result.forEach(this::saveAsWikiFile);
 
