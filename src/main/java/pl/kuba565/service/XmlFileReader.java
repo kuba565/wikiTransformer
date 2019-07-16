@@ -53,21 +53,31 @@ class XmlFileReader {
 
     private Integer handleEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
         if (event.isStartElement()) {
-            boolean section = event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section");
-            if (section) {
-                stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
-                level++;
-            } else {
-                stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
-            }
+            level = handleStartEvent(stringBuilder, level, event);
         } else {
-            boolean section = event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section");
-            if (section) {
-                stringBuilder.append(endElementHandler.handle(event.asEndElement()));
-                level--;
-            } else {
-                stringBuilder.append(endElementHandler.handle(event.asEndElement()));
-            }
+            level = handleEndEvent(stringBuilder, level, event);
+        }
+        return level;
+    }
+
+    private Integer handleEndEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
+        boolean section = event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section");
+        if (section) {
+            stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+            level--;
+        } else {
+            stringBuilder.append(endElementHandler.handle(event.asEndElement()));
+        }
+        return level;
+    }
+
+    private Integer handleStartEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
+        boolean section = event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section");
+        if (section) {
+            stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
+            level++;
+        } else {
+            stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
         }
         return level;
     }
