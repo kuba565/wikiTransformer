@@ -1,11 +1,8 @@
 package pl.kuba565.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import pl.kuba565.exception.DirectoryNotFoundException;
-import pl.kuba565.exception.NullDirectoryException;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
@@ -14,13 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @Configuration
-@ComponentScan
-public class ServiceConfig {
+public class TestServiceConfig {
+
     @Bean
-    public XmlLooker XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
-        if (inputSource == null || inputSource.equals("")) {
-            throw new NullDirectoryException();
-        }
+    public XmlLooker XmlLooker(XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
+        String inputSource = "./src/test/resources/input/";
 
         if (!Files.exists(Paths.get(inputSource))) {
             throw new DirectoryNotFoundException(inputSource);
@@ -51,10 +46,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public WikiFileSaver WikiFileSaver(@Value("${outputSource}") String outputSource) {
-        if (outputSource == null || outputSource.equals("")) {
-            throw new NullDirectoryException();
-        }
+    public WikiFileSaver WikiFileSaver() {
+        String outputSource = "./src/test/resources/output/";
 
         if (!Files.exists(Paths.get(outputSource))) {
             throw new DirectoryNotFoundException(outputSource);

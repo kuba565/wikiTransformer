@@ -19,11 +19,8 @@
 					</section>
 					<section heading="JUnits">
 						<section heading="com.astraia.api.data">
-							<bold>Passed:</bold> 5 passed!
-							<bold>Failed:</bold> 1 failed!
-							<section heading="failed tests">
-								<bold>TestInterview</bold>
-							</section>
+							<bold>Passed:</bold> All passed!
+							<bold>Failed:</bold> None
 						</section>
 					</section>
 				</section>
