@@ -14,5 +14,4 @@ public class WikiTransformerTests {
         String[] args = {"a", "b"};
         WikiTransformerApplication.main(args);
     }
-
 }
