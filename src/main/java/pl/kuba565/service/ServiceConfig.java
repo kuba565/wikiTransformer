@@ -2,8 +2,8 @@ package pl.kuba565.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import pl.kuba565.exception.DirectoryNotFoundException;
 import pl.kuba565.exception.NullDirectoryException;
 import pl.kuba565.handler.CharactersHandler;
@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @Configuration
-@ComponentScan
 public class ServiceConfig {
     @Bean
     public XmlLooker XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {

@@ -1,11 +1,8 @@
 package pl.kuba565.service;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.FileSystemUtils;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
@@ -13,54 +10,32 @@ import pl.kuba565.handler.StartElementHandler;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
-@ContextConfiguration(classes = TestServiceConfig.class)
-@SpringBootTest
 public class XmlLookerTest {
-    @BeforeEach
-    public void init() throws IOException {
-        FileUtils.cleanDirectory(new File("./src/test/resources/output/"));
-        FileUtils.cleanDirectory(new File("./src/test/resources/input/"));
-        String inputSource = "./src/test/resources/input/";
-        String outputSource = "./src/test/resources/output/";
-        StartElementHandler startElementHandler = new StartElementHandler();
-        EndElementHandler endElementHandler = new EndElementHandler();
-        CharactersHandler charactersHandler = new CharactersHandler();
-
-        XmlFileReader xmlFileReader = new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
-
-        WikiFileSaver wikiFileSaver = new WikiFileSaver(outputSource);
-
-        XmlLooker xmlLooker = new XmlLooker(inputSource, xmlFileReader, wikiFileSaver);
-
-    }
 
     @Test
     public void shouldFindAndTransformXmlFile() throws IOException, InterruptedException {
         //given
-        System.out.println(xmlLooker);
-        String inputSource = "./src/test/resources/input/";
-        String outputSource = "./src/test/resources/output/";
-//
-        final String expected = "The text can start outside a section....\n" +
-                "=Build 1234=\n" +
-                "==Api component==\n" +
-                "'''Date: ''01.04.2015'''''\n" +
-                "===Main===\n" +
-                "====astraia.jar====\n" +
-                "''Built in '''512ms'''''\n" +
-                "===Test===\n" +
-                "Test performed on the different databases\n" +
-                "====Sybase====\n" +
-                "=====Preparing DB=====\n" +
-                "Done in ''1556ms''\n" +
-                "=====JUnits=====\n" +
-                "======com.astraia.api.data======\n" +
-                "'''Passed:''' All passed!\n" +
-                "'''Failed:''' None\n";
+        Path inputFile = Files.createTempDirectory("input");
+        Path outputFile = Files.createTempDirectory("output");
+        String inputSource = inputFile.toAbsolutePath().toString() + "/";
+        String outputSource = outputFile.toAbsolutePath().toString() + "/";
+
+        String newFilePath = inputSource + "/example1.xml";
+
+        EndElementHandler endElementHandler = new EndElementHandler();
+        CharactersHandler charactersHandler = new CharactersHandler();
+        StartElementHandler startElementHandler = new StartElementHandler();
+        XmlFileReader xmlFileReader = new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
+        WikiFileSaver wikiFileSaver = new WikiFileSaver(outputSource);
+
+        XmlLooker xmlLooker = new XmlLooker(inputSource, xmlFileReader, wikiFileSaver);
+        xmlLooker.convertXmlToWiki();
 
         String content = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
                 "<report>\n" +
@@ -93,17 +68,48 @@ public class XmlLookerTest {
                 "\t</section>\n" +
                 "</report>\n";
 
-        //when
+        final String expected = "The text can start outside a section....\n" +
+                "=Build 1234=\n" +
+                "==Api component==\n" +
+                "'''Date: ''01.04.2015'''''\n" +
+                "===Main===\n" +
+                "====astraia.jar====\n" +
+                "''Built in '''512ms'''''\n" +
+                "===Test===\n" +
+                "Test performed on the different databases\n" +
+                "====Sybase====\n" +
+                "=====Preparing DB=====\n" +
+                "Done in ''1556ms''\n" +
+                "=====JUnits=====\n" +
+                "======com.astraia.api.data======\n" +
+                "'''Passed:''' All passed!\n" +
+                "'''Failed:''' None\n";
 
-        String newFilePath = inputSource + "/example1.xml";
+        //when
+        Thread.sleep(1000);
         try (PrintWriter writer = new PrintWriter(new File(newFilePath))) {
             writer.write(content);
         }
-
-        Path path = Paths.get(outputSource + "example1.wiki");
-        String result = Files.readAllLines(path).toString();
+        Thread.sleep(1000);
 
         //then
+        String result = readLineByLine(outputSource + "/example1.wiki");
+
         Assertions.assertEquals(expected, result);
+        FileSystemUtils.deleteRecursively(inputFile);
+        FileSystemUtils.deleteRecursively(outputFile);
+    }
+
+    private static String readLineByLine(String filePath) {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return contentBuilder.toString();
     }
 }
+

@@ -1,7 +1,9 @@
 package pl.kuba565.service;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -9,26 +11,35 @@ import java.io.IOException;
 import java.nio.file.*;
 
 public class XmlLooker {
-    @Value("${inputSource}")
     private final String inputSource;
     private final XmlFileReader xmlFileReader;
     private final WikiFileSaver wikiFileSaver;
+    private static final Logger LOG = LoggerFactory.getLogger(XmlLooker.class);
 
-    public XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
+    public XmlLooker(String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
         this.inputSource = inputSource;
         this.xmlFileReader = xmlFileReader;
         this.wikiFileSaver = wikiFileSaver;
     }
 
     @PostConstruct
-    void convertXmlToWiki() throws IOException {
-        WatchService watchService = FileSystems.getDefault().newWatchService();
+    public void convertXmlToWiki() {
+        new Thread(() -> {
+            try {
+                runWatcher(FileSystems.getDefault().newWatchService());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void runWatcher(WatchService watchService) throws IOException {
         Path path = Paths.get(inputSource);
-        WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        WatchKey key = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
         while (true) {
-            watchKey.pollEvents()
+            key.pollEvents()
                     .forEach(x -> saveAsWikiFile(inputSource + x.context().toString()));
-            watchKey.reset();
+            key.reset();
         }
     }
 
