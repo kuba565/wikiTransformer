@@ -38,7 +38,7 @@ public class XmlLooker {
         WatchKey key = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
         while (true) {
             key.pollEvents()
-                    .forEach(x -> saveAsWikiFile(inputSource + x.context().toString()));
+                    .forEach(x -> saveAsWikiFile(inputSource + "/" + x.context().toString()));
             key.reset();
         }
     }
