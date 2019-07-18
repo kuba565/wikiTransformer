@@ -1,5 +1,7 @@
 package pl.kuba565.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.kuba565.Util.TextTrimmer;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
@@ -14,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 class XmlFileReader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileReader.class);
     private StartElementHandler startElementHandler;
     private EndElementHandler endElementHandler;
     private CharactersHandler charactersHandler;
@@ -45,8 +48,10 @@ class XmlFileReader {
                     }
                 }
             }
-        } catch (XMLStreamException | FileNotFoundException e) {
-            e.printStackTrace();
+        } catch (XMLStreamException e) {
+            LOGGER.error("input file syntax problem {}", e.toString());
+        } catch (FileNotFoundException e) {
+            LOGGER.error("file not found {}", e.toString());
         }
         return TextTrimmer.trim(stringBuilder);
     }

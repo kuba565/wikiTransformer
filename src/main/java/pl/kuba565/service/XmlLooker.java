@@ -14,7 +14,7 @@ public class XmlLooker {
     private final String inputSource;
     private final XmlFileReader xmlFileReader;
     private final WikiFileSaver wikiFileSaver;
-    private static final Logger LOG = LoggerFactory.getLogger(XmlLooker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileReader.class);
 
     public XmlLooker(String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
         this.inputSource = inputSource;
@@ -23,12 +23,12 @@ public class XmlLooker {
     }
 
     @PostConstruct
-    public void convertXmlToWiki() {
+    void convertXmlToWiki() {
         new Thread(() -> {
             try {
                 runWatcher(FileSystems.getDefault().newWatchService());
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("file problem {}", e.toString());
             }
         }).start();
     }
