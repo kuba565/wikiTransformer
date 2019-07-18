@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-public class WikiFileSaver {
+class WikiFileSaver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WikiFileSaver.class);
     private final String outputSource;
 

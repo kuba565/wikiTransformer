@@ -10,13 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 
-public class XmlLooker {
+class XmlLooker {
     private final String inputSource;
     private final XmlFileReader xmlFileReader;
     private final WikiFileSaver wikiFileSaver;
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileReader.class);
 
-    public XmlLooker(String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
+    XmlLooker(String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
         this.inputSource = inputSource;
         this.xmlFileReader = xmlFileReader;
         this.wikiFileSaver = wikiFileSaver;
