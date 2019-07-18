@@ -13,6 +13,3 @@
 
     * to configure the data output source change "-DoutputSource=>>YOUR_OUTPUT_SOURCE_PATH<<" property with your path
     in the aforementioned command.
-
-
-$ java -DinputSource="C:/dev/projects/wikiTransformer/input/" -DoutputSource="C:/dev/projects/wikiTransformer/output/" -jar target/wikiTransformer-1.0-SNAPSHOT.jar

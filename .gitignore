@@ -97,6 +97,9 @@ fabric.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# Log files
+application.log*
+
 # Package Files #
 *.jar
 *.war
