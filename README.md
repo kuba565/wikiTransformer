@@ -13,3 +13,8 @@
 
     * to configure the data output source change "-DoutputSource=>>YOUR_OUTPUT_SOURCE_PATH<<" property with your path
     in the aforementioned command.
+
+## Technical info
+Project requires:
+- Java SE 11
+- Maven at least v3.5.0
