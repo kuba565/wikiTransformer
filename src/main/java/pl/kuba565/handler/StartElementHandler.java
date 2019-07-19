@@ -16,9 +16,8 @@ public class StartElementHandler {
 
         switch (elementName) {
             case StringUtils.SECTION: {
-                Iterator<Attribute> attributes = startElement.getAttributes();
-                if (attributes.hasNext()) {
-                    return generateSection(level, attributes);
+                if (startElement.getAttributes().hasNext()) {
+                    return generateSection(level, startElement.getAttributes());
                 }
                 break;
             }
