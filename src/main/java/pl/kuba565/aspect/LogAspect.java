@@ -22,23 +22,42 @@ public class LogAspect {
     @Around(SERVICE_POINTCUT)
     public Object logAdvice(ProceedingJoinPoint jp) throws Throwable {
 
-        LOG.info("[METHOD] --------> {}", jp.getSignature().toShortString());
+        logMethod(jp);
 
         Object[] signatureArgs = jp.getArgs();
-        for (Object signatureArg : signatureArgs) {
-            LOG.info("[ARGS] --------> {}: {}", signatureArg.getClass().getSimpleName(),
-                    signatureArg.toString());
-        }
+
+        logArgs(signatureArgs);
 
         Instant startTime = Instant.now();
         Object obj = jp.proceed();
         Instant endTime = Instant.now();
 
-        int nano = Duration.between(startTime, endTime).getNano();
-        long milliseconds = TimeUnit.MILLISECONDS.convert(nano, TimeUnit.NANOSECONDS);
-        LOG.info("[METRICS] --------------------> {}, time: {} {} ", jp.getSignature().toShortString(),
-                milliseconds, "milliseconds");
+        logMetrics(jp, getMillisecondsBetweenInstants(startTime, endTime));
 
         return obj;
+    }
+
+    private void logMetrics(ProceedingJoinPoint jp, long milliseconds) {
+        LOG.info("[METRICS] --------------------> {}, time: {} {} ",
+                jp.getSignature().toShortString(), milliseconds, "milliseconds");
+    }
+
+    private void logMethod(ProceedingJoinPoint jp) {
+        LOG.info("[METHOD] --------> {}",
+                jp.getSignature().toShortString());
+    }
+
+    private long getMillisecondsBetweenInstants(Instant startTime, Instant endTime) {
+        return TimeUnit.MILLISECONDS.convert
+                (Duration.between(startTime, endTime)
+                                .getNano(),
+                        TimeUnit.NANOSECONDS);
+    }
+
+    private void logArgs(Object[] signatureArgs) {
+        for (Object signatureArg : signatureArgs) {
+            LOG.info("[ARGS] --------> {}: {}",
+                    signatureArg.getClass().getSimpleName(), signatureArg.toString());
+        }
     }
 }

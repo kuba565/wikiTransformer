@@ -3,35 +3,34 @@ package pl.kuba565.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
-import pl.kuba565.exception.DirectoryNotFoundException;
-import pl.kuba565.exception.NullDirectoryException;
 import pl.kuba565.handler.CharactersHandler;
 import pl.kuba565.handler.EndElementHandler;
 import pl.kuba565.handler.StartElementHandler;
+import pl.kuba565.handler.XmlFileToWikiHandler;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @Configuration
 public class ServiceConfig {
     @Bean
-    public XmlLooker XmlLooker(@Value("${inputSource}") String inputSource, XmlFileReader xmlFileReader, WikiFileSaver wikiFileSaver) {
-        if (inputSource == null || inputSource.equals("")) {
-            throw new NullDirectoryException();
+    public XmlToWikiTransformer XmlToWikiTransformer(@Value("${inputSource}") String inputSource, XmlFileToWikiHandler xmlFileToWikiHandler, WikiFileSaver wikiFileSaver) throws FileNotFoundException {
+        if (inputSource == null || inputSource.isEmpty()) {
+            throw new NullPointerException("null input source");
         }
 
         if (!Files.exists(Paths.get(inputSource))) {
-            throw new DirectoryNotFoundException(inputSource);
+            throw new FileNotFoundException(inputSource);
         }
 
-        return new XmlLooker(inputSource, xmlFileReader, wikiFileSaver);
+        return new XmlToWikiTransformer(inputSource, xmlFileToWikiHandler, wikiFileSaver);
     }
 
     @Bean
-    public XmlFileReader XmlFileReader(StartElementHandler startElementHandler, EndElementHandler endElementHandler,
-                                       CharactersHandler charactersHandler) {
-        return new XmlFileReader(startElementHandler, endElementHandler, charactersHandler);
+    public XmlFileToWikiHandler XmlFileReader(StartElementHandler startElementHandler, EndElementHandler endElementHandler,
+                                              CharactersHandler charactersHandler) {
+        return new XmlFileToWikiHandler(startElementHandler, endElementHandler, charactersHandler);
     }
 
     @Bean
@@ -50,13 +49,13 @@ public class ServiceConfig {
     }
 
     @Bean
-    public WikiFileSaver WikiFileSaver(@Value("${outputSource}") String outputSource) {
-        if (outputSource == null || outputSource.equals("")) {
-            throw new NullDirectoryException();
+    public WikiFileSaver WikiFileSaver(@Value("${outputSource}") String outputSource) throws FileNotFoundException {
+        if (outputSource == null || outputSource.isEmpty()) {
+            throw new NullPointerException("null output source");
         }
 
         if (!Files.exists(Paths.get(outputSource))) {
-            throw new DirectoryNotFoundException(outputSource);
+            throw new FileNotFoundException(outputSource);
         }
         return new WikiFileSaver(outputSource);
     }

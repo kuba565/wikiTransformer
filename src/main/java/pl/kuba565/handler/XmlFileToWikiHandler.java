@@ -1,11 +1,8 @@
-package pl.kuba565.service;
+package pl.kuba565.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.kuba565.Util.TextTrimmer;
-import pl.kuba565.handler.CharactersHandler;
-import pl.kuba565.handler.EndElementHandler;
-import pl.kuba565.handler.StartElementHandler;
+import pl.kuba565.Util.StringUtils;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -15,21 +12,20 @@ import javax.xml.stream.events.XMLEvent;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-class XmlFileReader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileReader.class);
+public class XmlFileToWikiHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlFileToWikiHandler.class);
     private StartElementHandler startElementHandler;
     private EndElementHandler endElementHandler;
     private CharactersHandler charactersHandler;
 
-    XmlFileReader(StartElementHandler startElementHandler,
-                  EndElementHandler endElementHandler, CharactersHandler charactersHandler) {
+    public XmlFileToWikiHandler(StartElementHandler startElementHandler,
+                                EndElementHandler endElementHandler, CharactersHandler charactersHandler) {
         this.startElementHandler = startElementHandler;
         this.charactersHandler = charactersHandler;
         this.endElementHandler = endElementHandler;
     }
 
-    String read(String inputSource) {
-        System.out.println("Inpoutsource:" + inputSource);
+    public String handle(String inputSource) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
             Integer level = 1;
@@ -54,7 +50,7 @@ class XmlFileReader {
         } catch (FileNotFoundException e) {
             LOGGER.error("file not found {}", e.toString());
         }
-        return TextTrimmer.trim(stringBuilder);
+        return stringBuilder.toString();
     }
 
     private Integer handleEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
@@ -67,8 +63,8 @@ class XmlFileReader {
     }
 
     private Integer handleEndEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
-        boolean section = event.asEndElement().getName().getLocalPart().equalsIgnoreCase("section");
-        if (section) {
+        boolean isSection = event.asEndElement().getName().getLocalPart().equalsIgnoreCase(StringUtils.SECTION);
+        if (isSection) {
             stringBuilder.append(endElementHandler.handle(event.asEndElement()));
             level--;
         } else {
@@ -78,8 +74,8 @@ class XmlFileReader {
     }
 
     private Integer handleStartEvent(StringBuilder stringBuilder, Integer level, XMLEvent event) {
-        boolean section = event.asStartElement().getName().getLocalPart().equalsIgnoreCase("section");
-        if (section) {
+        boolean isSection = event.asStartElement().getName().getLocalPart().equalsIgnoreCase(StringUtils.SECTION);
+        if (isSection) {
             stringBuilder.append(startElementHandler.handle(event.asStartElement(), level));
             level++;
         } else {
